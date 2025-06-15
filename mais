@@ -1,0 +1,108 @@
+import random
+import time
+import matplotlib.pyplot as plt
+
+# ------------------ Sorting Algorithms ------------------ #
+def bubble_sort(arr):
+    a = arr.copy()
+    n = len(a)
+    for i in range(n):
+        for j in range(0, n-i-1):
+            if a[j] > a[j+1]:
+                a[j], a[j+1] = a[j+1], a[j]
+    return a
+
+def merge_sort(arr):
+    if len(arr) <= 1:
+        return arr
+    mid = len(arr) // 2
+    L = merge_sort(arr[:mid])
+    R = merge_sort(arr[mid:])
+    return merge(L, R)
+
+def merge(left, right):
+    result = []
+    i = j = 0
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            result.append(left[i])
+            i += 1
+        else:
+            result.append(right[j])
+            j += 1
+    result.extend(left[i:])
+    result.extend(right[j:])
+    return result
+
+def quick_sort(arr):
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[random.randint(0, len(arr)-1)]
+    left = [x for x in arr if x < pivot]
+    mid = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return quick_sort(left) + mid + quick_sort(right)
+
+# ------------------ Test Data Generation ------------------ #
+def generate_array(size, case='random'):
+    if case == 'sorted':
+        return list(range(size))
+    elif case == 'reversed':
+        return list(range(size, 0, -1))
+    elif case == 'partial':
+        arr = list(range(size))
+        for _ in range(size // 4):
+            i = random.randint(0, size-1)
+            j = random.randint(0, size-1)
+            arr[i], arr[j] = arr[j], arr[i]
+        return arr
+    else:  # random
+        return [random.randint(0, size) for _ in range(size)]
+
+# ------------------ Benchmarking ------------------ #
+def benchmark(sorting_fn, array, trials=5):
+    times = []
+    for _ in range(trials):
+        start = time.perf_counter()
+        sorting_fn(array)
+        end = time.perf_counter()
+        times.append(end - start)
+    return sum(times) / trials
+
+# ------------------ Main Experiment ------------------ #
+def run_experiment():
+    sizes = [100, 500, 1000, 2000]  # Adjust depending on your PC
+    cases = ['random', 'sorted', 'reversed', 'partial']
+    algorithms = {
+        'Bubble Sort': bubble_sort,
+        'Merge Sort': merge_sort,
+        'Quick Sort': quick_sort
+    }
+
+    results = {alg: {case: [] for case in cases} for alg in algorithms}
+
+    for case in cases:
+        for size in sizes:
+            test_array = generate_array(size, case)
+            for alg_name, alg_func in algorithms.items():
+                avg_time = benchmark(alg_func, test_array)
+                results[alg_name][case].append(avg_time)
+                print(f"{alg_name} - {case} - size {size}: {avg_time:.5f}s")
+    return results, sizes
+
+# ------------------ Plotting ------------------ #
+def plot_results(results, sizes):
+    for case in results['Bubble Sort']:
+        plt.figure(figsize=(10, 6))
+        for alg_name in results:
+            plt.plot(sizes, results[alg_name][case], label=alg_name)
+        plt.title(f'Execution Time for {case} Data')
+        plt.xlabel('Input Size')
+        plt.ylabel('Time (seconds)')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+# Run it
+results, sizes = run_experiment()
+plot_results(results, sizes)
