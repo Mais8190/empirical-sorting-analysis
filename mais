@@ -1,108 +1,413 @@
-import random
 import time
-import matplotlib.pyplot as plt
+import random
 
-# ------------------ Sorting Algorithms ------------------ #
+def measure_time(sort_func, arr):
+    start = time.time()
+    sort_func(arr.copy())  # Use a copy to avoid modifying the original array
+    end = time.time()
+    return end - start
+
 def bubble_sort(arr):
-    a = arr.copy()
-    n = len(a)
+    n = len(arr)
     for i in range(n):
         for j in range(0, n-i-1):
-            if a[j] > a[j+1]:
-                a[j], a[j+1] = a[j+1], a[j]
-    return a
-
-def merge_sort(arr):
-    if len(arr) <= 1:
-        return arr
-    mid = len(arr) // 2
-    L = merge_sort(arr[:mid])
-    R = merge_sort(arr[mid:])
-    return merge(L, R)
-
-def merge(left, right):
-    result = []
-    i = j = 0
-    while i < len(left) and j < len(right):
-        if left[i] <= right[j]:
-            result.append(left[i])
-            i += 1
-        else:
-            result.append(right[j])
-            j += 1
-    result.extend(left[i:])
-    result.extend(right[j:])
-    return result
+            if arr[j] > arr[j+1]:
+                arr[j], arr[j+1] = arr[j+1], arr[j]
+    return arr
 
 def quick_sort(arr):
     if len(arr) <= 1:
         return arr
-    pivot = arr[random.randint(0, len(arr)-1)]
+    pivot = arr[len(arr) // 2]
     left = [x for x in arr if x < pivot]
-    mid = [x for x in arr if x == pivot]
+    middle = [x for x in arr if x == pivot]
     right = [x for x in arr if x > pivot]
-    return quick_sort(left) + mid + quick_sort(right)
+    return quick_sort(left) + middle + quick_sort(right)
 
-# ------------------ Test Data Generation ------------------ #
-def generate_array(size, case='random'):
-    if case == 'sorted':
+random_list = [random.randint(1, 1000) for _ in range(1000)]
+small_list = [3, 1, 4, 1, 5, 9, 2, 6, 5]
+
+print("Measuring sorting times...")
+print(f"Built-in sorted() small list: {measure_time(sorted, small_list):.6f} seconds")
+print(f"Bubble Sort small list: {measure_time(bubble_sort, small_list):.6f} seconds")
+print(f"Quick Sort small list: {measure_time(quick_sort, small_list):.6f} seconds")
+
+print("\nMeasuring with larger list (1000 elements)...")
+print(f"Built-in sorted(): {measure_time(sorted, random_list):.6f} seconds")
+print(f"Quick Sort: {measure_time(quick_sort, random_list):.6f} seconds")
+print(f"Bubble Sort: {measure_time(bubble_sort, random_list):.6f} seconds")
+
+
+
+
+
+
+
+import random
+
+def generate_data(size, order='random'):
+    if order == 'random':
+        return random.sample(range(size * 2), size)
+    elif order == 'sorted':
         return list(range(size))
-    elif case == 'reversed':
+    elif order == 'reverse':
         return list(range(size, 0, -1))
-    elif case == 'partial':
-        arr = list(range(size))
-        for _ in range(size // 4):
-            i = random.randint(0, size-1)
-            j = random.randint(0, size-1)
-            arr[i], arr[j] = arr[j], arr[i]
+    elif order == 'partial':
+        part = list(range(size // 2)) + random.sample(range(size // 2, size * 2), size // 2)
+        return part
+    else:
+        raise ValueError("Invalid order type. Use 'random', 'sorted', 'reverse', or 'partial'.")
+
+if __name__ == "__main__":
+    print("Random array (10 elements):", generate_data(10, 'random'))
+    print("Sorted array (10 elements):", generate_data(10, 'sorted'))
+    print("Reverse-sorted array (10 elements):", generate_data(10, 'reverse'))
+    print("Partially sorted array (10 elements):", generate_data(10, 'partial'))
+
+
+
+
+
+
+
+import random
+import time
+
+def bubble_sort(arr):
+ 
+    n = len(arr)
+    for i in range(n):
+        for j in range(n - i - 1):
+            if arr[j] > arr[j + 1]:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+    return arr
+
+def generate_random_array(size):
+    return [random.randint(0, 1000) for _ in range(size)]
+
+def test_bubble_sort():
+    # Test cases
+    test_cases = [
+        ([5, 2, 9, 1, 5], [1, 2, 5, 5, 9]),
+        ([], []),
+        ([1], [1]),
+        ([3, 2, 1], [1, 2, 3]),
+        ([1, 2, 3], [1, 2, 3])
+    ]
+    
+    for input_arr, expected in test_cases:
+        result = bubble_sort(input_arr.copy())
+        assert result == expected, f"Failed: {input_arr} → {result}, expected {expected}"
+    print("All test cases passed!")
+
+def measure_performance():
+    sizes = [100, 500, 1000, 2000]
+    print("Performance Measurement:")
+    print(f"{'Size':<10} {'Time (s)':<10}")
+    
+    for size in sizes:
+        arr = generate_random_array(size)
+        start_time = time.time()
+        bubble_sort(arr)
+        end_time = time.time()
+        print(f"{size:<10} {end_time - start_time:.6f}")
+
+if __name__ == "__main__":
+    print("Testing Bubble Sort Algorithm")
+    test_bubble_sort()
+    print("\nMeasuring Performance:")
+    measure_performance()
+    
+    # Example usage
+    example_arr = [64, 34, 25, 12, 22, 11, 90]
+    print("\nExample:")
+    print("Original array:", example_arr)
+    sorted_arr = bubble_sort(example_arr.copy())
+    print("Sorted array:  ", sorted_arr)
+
+
+
+
+
+import random
+import time
+
+def merge_sort(arr):
+    if len(arr) > 1:
+        mid = len(arr) // 2
+        L = arr[:mid]
+        R = arr[mid:]
+        
+        merge_sort(L)
+        merge_sort(R)
+        
+        i = j = k = 0
+        while i < len(L) and j < len(R):
+            if L[i] < R[j]:
+                arr[k] = L[i]
+                i += 1
+            else:
+                arr[k] = R[j]
+                j += 1
+            k += 1
+        
+        arr[k:] = L[i:] + R[j:]
+
+def generate_random_array(size):
+    return [random.randint(0, 10000) for _ in range(size)]
+
+def test_merge_sort():
+    test_cases = [
+        ([5, 2, 9, 1, 5, 6], [1, 2, 5, 5, 6, 9]),
+        ([], []),
+        ([1], [1]),
+        ([3, 2, 1], [1, 2, 3]),
+        ([1, 2, 3], [1, 2, 3]),
+        ([10, -1, 3, -5], [-5, -1, 3, 10])
+    ]
+    
+    for input_arr, expected in test_cases:
+        arr = input_arr.copy()
+        merge_sort(arr)
+        assert arr == expected, f"Failed: {input_arr} → {arr}, expected {expected}"
+    print("All test cases passed!")
+
+def measure_performance():
+    sizes = [100, 1000, 10000, 50000]
+    print("\nPerformance Measurement:")
+    print(f"{'Size':<10} {'Time (s)':<10}")
+    
+    for size in sizes:
+        arr = generate_random_array(size)
+        start_time = time.time()
+        merge_sort(arr)
+        end_time = time.time()
+        print(f"{size:<10} {end_time - start_time:.6f}")
+
+if __name__ == "__main__":
+    print("Merge Sort Algorithm Implementation")
+    test_merge_sort()
+    measure_performance()
+    
+    # Example usage
+    example_arr = [38, 27, 43, 3, 9, 82, 10]
+    print("\nExample:")
+    print("Original array:", example_arr)
+    merge_sort(example_arr)
+    print("Sorted array:  ", example_arr)
+
+
+
+
+
+
+
+
+
+import random
+import time
+
+def quick_sort(arr):
+    if len(arr) <= 1:
         return arr
-    else:  # random
-        return [random.randint(0, size) for _ in range(size)]
+    pivot = arr[len(arr)//2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return quick_sort(left) + middle + quick_sort(right)
 
-# ------------------ Benchmarking ------------------ #
-def benchmark(sorting_fn, array, trials=5):
-    times = []
-    for _ in range(trials):
-        start = time.perf_counter()
-        sorting_fn(array)
-        end = time.perf_counter()
-        times.append(end - start)
-    return sum(times) / trials
+def generate_random_array(size):
+    return [random.randint(0, 10000) for _ in range(size)]
 
-# ------------------ Main Experiment ------------------ #
-def run_experiment():
-    sizes = [100, 500, 1000, 2000]  # Adjust depending on your PC
-    cases = ['random', 'sorted', 'reversed', 'partial']
+def test_quick_sort():
+    test_cases = [
+        ([5, 2, 9, 1, 5, 6], [1, 2, 5, 5, 6, 9]),
+        ([], []),
+        ([1], [1]),
+        ([3, 2, 1], [1, 2, 3]),
+        ([1, 2, 3], [1, 2, 3]),
+        ([10, -1, 3, -5], [-5, -1, 3, 10]),
+        (['banana', 'apple', 'cherry'], ['apple', 'banana', 'cherry'])
+    ]
+    
+    for input_arr, expected in test_cases:
+        result = quick_sort(input_arr.copy())
+        assert result == expected, f"Failed: {input_arr} → {result}, expected {expected}"
+    print("All test cases passed!")
+
+def measure_performance():
+    sizes = [100, 1000, 10000, 50000, 100000]
+    print("\nPerformance Measurement:")
+    print(f"{'Size':<10} {'Time (s)':<10}")
+    
+    for size in sizes:
+        arr = generate_random_array(size)
+        start_time = time.time()
+        quick_sort(arr)
+        end_time = time.time()
+        print(f"{size:<10} {end_time - start_time:.6f}")
+
+if __name__ == "__main__":
+    print("Quick Sort Algorithm Implementation")
+    test_quick_sort()
+    measure_performance()
+
+    example_arr = [33, 15, 10, 2, 21, 48, 7]
+    print("\nExample:")
+    print("Original array:", example_arr)
+    sorted_arr = quick_sort(example_arr.copy())
+    print("Sorted array:  ", sorted_arr)
+
+
+
+
+
+
+import random
+
+def generate_data(size, order='random'):
+    if order == 'random':
+        return random.sample(range(size * 2), size)
+    elif order == 'sorted':
+        return list(range(size))
+    elif order == 'reverse':
+        return list(range(size - 1, -1, -1))  
+    elif order == 'partial':
+        part = list(range(size // 2)) + random.sample(range(size // 2, size * 2), size - size // 2)
+        return part
+    else:
+        raise ValueError("Invalid order type. Use 'random', 'sorted', 'reverse', or 'partial'.")
+
+def test_data_generation():
+    print("Testing data generation:")
+    
+
+    test_sizes = [5, 10]
+    for size in test_sizes:
+        print(f"\nSize: {size}")
+        print(f"Random:  {generate_data(size, 'random')}")
+        print(f"Sorted:  {generate_data(size, 'sorted')}")
+        print(f"Reverse: {generate_data(size, 'reverse')}")
+        print(f"Partial: {generate_data(size, 'partial')}")
+    
+    print("\nEdge cases:")
+    print("Empty array:", generate_data(0, 'random'))
+    print("Single element:", generate_data(1, 'sorted'))
+
+def measure_performance():
+    sizes = [1000, 10000, 100000]
+    print("\nPerformance Measurement:")
+    print(f"{'Size':<10} {'Type':<10} {'Time (ms)':<10}")
+    
+    for size in sizes:
+        for order in ['random', 'sorted', 'reverse', 'partial']:
+            start = time.time()
+            generate_data(size, order)
+            elapsed = (time.time() - start) * 1000 
+            print(f"{size:<10} {order:<10} {elapsed:.4f}")
+
+if __name__ == "__main__":
+    import time
+    
+    print("Data Generator for Algorithm Testing")
+    test_data_generation()
+    
+    # Example usage
+    print("\nExample Usage:")
+    data = generate_data(15, 'partial')
+    print("Partial sorted array (size 15):", data)
+    
+
+
+
+
+
+import time
+import random
+from typing import Callable, List
+
+def measure_time(sort_func: Callable[[List], None], arr: List) -> float:
+    arr_copy = arr.copy() 
+    start = time.perf_counter() 
+    sort_func(arr_copy)
+    end = time.perf_counter()
+    return end - start
+
+def bubble_sort(arr: List) -> None:
+    n = len(arr)
+    for i in range(n):
+        for j in range(n - i - 1):
+            if arr[j] > arr[j + 1]:
+                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+
+def quick_sort(arr: List) -> None:
+    def _quick_sort(arr: List, low: int, high: int) -> None:
+        if low < high:
+            pi = partition(arr, low, high)
+            _quick_sort(arr, low, pi - 1)
+            _quick_sort(arr, pi + 1, high)
+    
+    def partition(arr: List, low: int, high: int) -> int:
+        pivot = arr[high]
+        i = low - 1
+        for j in range(low, high):
+            if arr[j] <= pivot:
+                i += 1
+                arr[i], arr[j] = arr[j], arr[i]
+        arr[i + 1], arr[high] = arr[high], arr[i + 1]
+        return i + 1
+    
+    _quick_sort(arr, 0, len(arr) - 1)
+
+def python_sort(arr: List) -> None:
+    arr.sort()
+
+def generate_data(size: int, order: str = 'random') -> List:
+    if order == 'random':
+        return [random.randint(0, size*2) for _ in range(size)]
+    elif order == 'sorted':
+        return list(range(size))
+    elif order == 'reverse':
+        return list(range(size, 0, -1))
+    elif order == 'partial':
+        return list(range(size//2)) + [random.randint(size//2, size*2) for _ in range(size - size//2)]
+    else:
+        raise ValueError(f"Unknown order type: {order}")
+
+def compare_sorters():
     algorithms = {
-        'Bubble Sort': bubble_sort,
-        'Merge Sort': merge_sort,
-        'Quick Sort': quick_sort
+        "Bubble Sort": bubble_sort,
+        "Quick Sort": quick_sort,
+        "Python Sort": python_sort
     }
+    
+    data_patterns = ['random', 'sorted', 'reverse', 'partial']
+    sizes = [100, 1000, 5000]  # Be careful with larger sizes for Bubble Sort
+    
+    print(f"{'Algorithm':<12} {'Data Type':<10} {'Size':<8} {'Time (s)':<10}")
+    print("-" * 45)
+    
+    for size in sizes:
+        for pattern in data_patterns:
+            data = generate_data(size, pattern)
+            for name, algorithm in algorithms.items():
+                time_taken = measure_time(algorithm, data)
+                print(f"{name:<12} {pattern:<10} {size:<8} {time_taken:.6f}")
+            print("-" * 45)
 
-    results = {alg: {case: [] for case in cases} for alg in algorithms}
+if __name__ == "__main__":
+    data = generate_data(10, 'random')
+    print(f"Original data: {data}")
+    
+    data_copy = data.copy()
+    bubble_sort(data_copy)
+    print(f"Bubble sorted: {data_copy}")
+    
+    print("\nPerformance Comparison:")
+    compare_sorters()
 
-    for case in cases:
-        for size in sizes:
-            test_array = generate_array(size, case)
-            for alg_name, alg_func in algorithms.items():
-                avg_time = benchmark(alg_func, test_array)
-                results[alg_name][case].append(avg_time)
-                print(f"{alg_name} - {case} - size {size}: {avg_time:.5f}s")
-    return results, sizes
 
-# ------------------ Plotting ------------------ #
-def plot_results(results, sizes):
-    for case in results['Bubble Sort']:
-        plt.figure(figsize=(10, 6))
-        for alg_name in results:
-            plt.plot(sizes, results[alg_name][case], label=alg_name)
-        plt.title(f'Execution Time for {case} Data')
-        plt.xlabel('Input Size')
-        plt.ylabel('Time (seconds)')
-        plt.legend()
-        plt.grid(True)
-        plt.show()
 
-# Run it
-results, sizes = run_experiment()
-plot_results(results, sizes)
+
+
+
